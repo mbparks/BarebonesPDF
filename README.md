@@ -9,7 +9,7 @@ The bundle identifier is `com.greenshoegarage.BarebonesPDF`. The app targets mac
 - Opens PDFs from the Open dialog, Finder's **Open With** command, recent-document history, a window drop, or the Dock icon.
 - Displays single-page or vertically continuous layouts with thumbnails, page navigation, Fit Page, Fit Width, Actual Size, and manual zoom.
 - Selects and copies PDF text.
-- Rewrites a clicked PDF text object while retaining its existing font, size, color, transform, and placement when the embedded font can encode the replacement.
+- Rewrites selected PDF text objects while retaining their size, color, transform, and placement. A matching standard PDF font is substituted when an embedded subset font cannot encode replacement characters reliably.
 - Searches document text and moves between results.
 - Prints through the standard macOS print panel and supports standard full-screen windows.
 - Prompts for supported password-protected PDFs using PDFKit's local unlock API.

@@ -165,6 +165,111 @@ enum PDFiumTextEditingService {
         return result
     }
 
+    private struct TextObjectStyle {
+        let matrix: FS_MATRIX
+        let fontSize: Float
+        let fill: (UInt32, UInt32, UInt32, UInt32)
+        let stroke: (UInt32, UInt32, UInt32, UInt32)
+        let renderMode: FPDF_TEXT_RENDERMODE
+        let standardFontName: String
+    }
+
+    private static func replaceWithStandardFonts(
+        document: FPDF_DOCUMENT,
+        page: FPDF_PAGE,
+        oldObjects: [FPDF_PAGEOBJECT],
+        segments: [String]
+    ) throws {
+        var replacements: [FPDF_PAGEOBJECT] = []
+        defer { replacements.forEach(FPDFPageObj_Destroy) }
+
+        for (oldObject, segment) in zip(oldObjects, segments) {
+            let style = try textStyle(of: oldObject)
+            let font = style.standardFontName.withCString { name in
+                FPDFText_LoadStandardFont(document, name)
+            }
+            guard let font else { throw PDFTextEditingError.unsupportedReplacement }
+            guard let replacement = FPDFPageObj_CreateTextObj(document, font, style.fontSize) else {
+                FPDFFont_Close(font)
+                throw PDFTextEditingError.unsupportedReplacement
+            }
+            FPDFFont_Close(font)
+            var matrix = style.matrix
+            guard setText(segment, on: replacement),
+                  FPDFPageObj_SetMatrix(replacement, &matrix) != 0,
+                  FPDFPageObj_SetFillColor(replacement, style.fill.0, style.fill.1, style.fill.2, style.fill.3) != 0,
+                  FPDFPageObj_SetStrokeColor(replacement, style.stroke.0, style.stroke.1, style.stroke.2, style.stroke.3) != 0,
+                  FPDFTextObj_SetTextRenderMode(replacement, style.renderMode) != 0 else {
+                FPDFPageObj_Destroy(replacement)
+                throw PDFTextEditingError.unsupportedReplacement
+            }
+            replacements.append(replacement)
+        }
+
+        for oldObject in oldObjects {
+            guard FPDFPage_RemoveObject(page, oldObject) != 0 else {
+                throw PDFTextEditingError.saveFailed
+            }
+            FPDFPageObj_Destroy(oldObject)
+        }
+        while !replacements.isEmpty {
+            let replacement = replacements.removeFirst()
+            guard FPDFPage_InsertObject(page, replacement) != 0 else {
+                throw PDFTextEditingError.saveFailed
+            }
+        }
+    }
+
+    private static func textStyle(of object: FPDF_PAGEOBJECT) throws -> TextObjectStyle {
+        var matrix = FS_MATRIX(a: 1, b: 0, c: 0, d: 1, e: 0, f: 0)
+        var size: Float = 12
+        var fillR: UInt32 = 0, fillG: UInt32 = 0, fillB: UInt32 = 0, fillA: UInt32 = 255
+        var strokeR: UInt32 = 0, strokeG: UInt32 = 0, strokeB: UInt32 = 0, strokeA: UInt32 = 255
+        guard FPDFPageObj_GetMatrix(object, &matrix) != 0,
+              FPDFTextObj_GetFontSize(object, &size) != 0 else {
+            throw PDFTextEditingError.unsupportedReplacement
+        }
+        _ = FPDFPageObj_GetFillColor(object, &fillR, &fillG, &fillB, &fillA)
+        _ = FPDFPageObj_GetStrokeColor(object, &strokeR, &strokeG, &strokeB, &strokeA)
+        return TextObjectStyle(
+            matrix: matrix,
+            fontSize: size,
+            fill: (fillR, fillG, fillB, fillA),
+            stroke: (strokeR, strokeG, strokeB, strokeA),
+            renderMode: FPDFTextObj_GetTextRenderMode(object),
+            standardFontName: standardFontName(for: object)
+        )
+    }
+
+    private static func standardFontName(for object: FPDF_PAGEOBJECT) -> String {
+        guard let font = FPDFTextObj_GetFont(object) else { return "Helvetica" }
+        let length = FPDFFont_GetBaseFontName(font, nil, 0)
+        var buffer = [CChar](repeating: 0, count: max(1, length))
+        if length > 0 { _ = FPDFFont_GetBaseFontName(font, &buffer, length) }
+        let sourceName = String(cString: buffer).lowercased()
+        let isBold = sourceName.contains("bold") || sourceName.contains("black") || sourceName.contains("demi")
+        let isItalic = sourceName.contains("italic") || sourceName.contains("oblique")
+        let family = sourceName.contains("times") ? "Times" : (sourceName.contains("courier") ? "Courier" : "Helvetica")
+        if family == "Times" {
+            if isBold && isItalic { return "Times-BoldItalic" }
+            if isBold { return "Times-Bold" }
+            if isItalic { return "Times-Italic" }
+            return "Times-Roman"
+        }
+        if isBold && isItalic { return "\(family)-BoldOblique" }
+        if isBold { return "\(family)-Bold" }
+        if isItalic { return "\(family)-Oblique" }
+        return family
+    }
+
+    private static func setText(_ text: String, on object: FPDF_PAGEOBJECT) -> Bool {
+        var utf16 = Array(text.utf16)
+        utf16.append(0)
+        return utf16.withUnsafeBufferPointer { buffer in
+            FPDFText_SetText(object, buffer.baseAddress) != 0
+        }
+    }
+
     static func replaceText(in data: Data, draft: PDFTextEditDraft, with replacement: String) throws -> Data {
         guard !replacement.isEmpty else { throw PDFTextEditingError.emptyReplacement }
         _ = PDFiumRuntime.shared
@@ -176,7 +281,8 @@ enum PDFiumTextEditingService {
             guard let textPage = FPDFText_LoadPage(page) else {
                 throw PDFTextEditingError.textChanged
             }
-            defer { FPDFText_ClosePage(textPage) }
+            var textPageIsOpen = true
+            defer { if textPageIsOpen { FPDFText_ClosePage(textPage) } }
 
             var pageObjects: [FPDF_PAGEOBJECT] = []
             for item in draft.objects {
@@ -187,18 +293,29 @@ enum PDFiumTextEditingService {
                 }
                 pageObjects.append(object)
             }
+            FPDFText_ClosePage(textPage)
+            textPageIsOpen = false
 
             let segments = replacementSegments(
                 replacement,
                 capacities: draft.objects.map { max(1, $0.originalText.count) }
             )
-            for (object, segment) in zip(pageObjects, segments) {
-                var utf16 = Array(segment.utf16)
-                utf16.append(0)
-                let changed = utf16.withUnsafeBufferPointer { buffer in
-                    FPDFText_SetText(object, buffer.baseAddress)
+            let isBasicLatin = replacement.unicodeScalars.allSatisfy {
+                $0.value == 9 || $0.value == 10 || $0.value == 13 || (32...126).contains($0.value)
+            }
+            if isBasicLatin {
+                try replaceWithStandardFonts(
+                    document: document,
+                    page: page,
+                    oldObjects: pageObjects,
+                    segments: segments
+                )
+            } else {
+                for (object, segment) in zip(pageObjects, segments) {
+                    guard setText(segment, on: object) else {
+                        throw PDFTextEditingError.unsupportedReplacement
+                    }
                 }
-                guard changed != 0 else { throw PDFTextEditingError.unsupportedReplacement }
             }
             guard FPDFPage_GenerateContent(page) != 0 else { throw PDFTextEditingError.saveFailed }
             return try save(document)
