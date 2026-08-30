@@ -15,6 +15,19 @@ struct PDFTextObjectDraft {
     let bounds: CGRect
 }
 
+struct PDFTextEditDiagnostics {
+    let originalFontNames: [String]
+    let replacementFontNames: [String]
+    let originalBounds: [CGRect]
+    let replacementBounds: [CGRect]
+    let usedStandardFontSubstitution: Bool
+}
+
+struct PDFTextEditResult {
+    let data: Data
+    let diagnostics: PDFTextEditDiagnostics
+}
+
 enum PDFTextEditingError: LocalizedError {
     case unreadableDocument
     case pageUnavailable
@@ -22,6 +35,8 @@ enum PDFTextEditingError: LocalizedError {
     case textChanged
     case emptyReplacement
     case unsupportedReplacement
+    case unsafeLayout(String)
+    case validationFailed(String)
     case saveFailed
 
     var errorDescription: String? {
@@ -38,6 +53,10 @@ enum PDFTextEditingError: LocalizedError {
             return "Replacement text cannot be empty. This tool rewrites text; it does not remove content objects."
         case .unsupportedReplacement:
             return "The PDF's embedded font cannot encode part of the replacement. Try characters already used by that font."
+        case .unsafeLayout(let reason):
+            return "The edit was blocked because it could damage the page layout. \(reason)"
+        case .validationFailed(let reason):
+            return "The edited PDF did not pass validation. \(reason) The original document was not changed."
         case .saveFailed:
             return "The rewritten PDF could not be generated. The original document was not changed."
         }
@@ -179,12 +198,17 @@ enum PDFiumTextEditingService {
         page: FPDF_PAGE,
         oldObjects: [FPDF_PAGEOBJECT],
         segments: [String]
-    ) throws {
+    ) throws -> (bounds: [CGRect], originalFonts: [String], replacementFonts: [String]) {
         var replacements: [FPDF_PAGEOBJECT] = []
+        var replacementBounds: [CGRect] = []
+        var originalFonts: [String] = []
+        var replacementFonts: [String] = []
         defer { replacements.forEach(FPDFPageObj_Destroy) }
 
         for (oldObject, segment) in zip(oldObjects, segments) {
             let style = try textStyle(of: oldObject)
+            originalFonts.append(baseFontName(for: oldObject))
+            replacementFonts.append(style.standardFontName)
             let font = style.standardFontName.withCString { name in
                 FPDFText_LoadStandardFont(document, name)
             }
@@ -203,6 +227,7 @@ enum PDFiumTextEditingService {
                 FPDFPageObj_Destroy(replacement)
                 throw PDFTextEditingError.unsupportedReplacement
             }
+            replacementBounds.append(pageObjectBounds(replacement) ?? .null)
             replacements.append(replacement)
         }
 
@@ -218,6 +243,7 @@ enum PDFiumTextEditingService {
                 throw PDFTextEditingError.saveFailed
             }
         }
+        return (replacementBounds, originalFonts, replacementFonts)
     }
 
     private static func textStyle(of object: FPDF_PAGEOBJECT) throws -> TextObjectStyle {
@@ -242,11 +268,8 @@ enum PDFiumTextEditingService {
     }
 
     private static func standardFontName(for object: FPDF_PAGEOBJECT) -> String {
-        guard let font = FPDFTextObj_GetFont(object) else { return "Helvetica" }
-        let length = FPDFFont_GetBaseFontName(font, nil, 0)
-        var buffer = [CChar](repeating: 0, count: max(1, length))
-        if length > 0 { _ = FPDFFont_GetBaseFontName(font, &buffer, length) }
-        let sourceName = String(cString: buffer).lowercased()
+        let sourceName = baseFontName(for: object).lowercased()
+        guard !sourceName.isEmpty else { return "Helvetica" }
         let isBold = sourceName.contains("bold") || sourceName.contains("black") || sourceName.contains("demi")
         let isItalic = sourceName.contains("italic") || sourceName.contains("oblique")
         let family = sourceName.contains("times") ? "Times" : (sourceName.contains("courier") ? "Courier" : "Helvetica")
@@ -262,6 +285,14 @@ enum PDFiumTextEditingService {
         return family
     }
 
+    private static func baseFontName(for object: FPDF_PAGEOBJECT) -> String {
+        guard let font = FPDFTextObj_GetFont(object) else { return "" }
+        let length = FPDFFont_GetBaseFontName(font, nil, 0)
+        var buffer = [CChar](repeating: 0, count: max(1, length))
+        if length > 0 { _ = FPDFFont_GetBaseFontName(font, &buffer, length) }
+        return String(cString: buffer)
+    }
+
     private static func setText(_ text: String, on object: FPDF_PAGEOBJECT) -> Bool {
         var utf16 = Array(text.utf16)
         utf16.append(0)
@@ -270,7 +301,7 @@ enum PDFiumTextEditingService {
         }
     }
 
-    static func replaceText(in data: Data, draft: PDFTextEditDraft, with replacement: String) throws -> Data {
+    static func replaceText(in data: Data, draft: PDFTextEditDraft, with replacement: String) throws -> PDFTextEditResult {
         guard !replacement.isEmpty else { throw PDFTextEditingError.emptyReplacement }
         _ = PDFiumRuntime.shared
         return try withDocument(data) { document in
@@ -303,22 +334,64 @@ enum PDFiumTextEditingService {
             let isBasicLatin = replacement.unicodeScalars.allSatisfy {
                 $0.value == 9 || $0.value == 10 || $0.value == 13 || (32...126).contains($0.value)
             }
+            let replacementBounds: [CGRect]
+            let originalFonts: [String]
+            let replacementFonts: [String]
             if isBasicLatin {
-                try replaceWithStandardFonts(
+                let details = try replaceWithStandardFonts(
                     document: document,
                     page: page,
                     oldObjects: pageObjects,
                     segments: segments
                 )
+                replacementBounds = details.bounds
+                originalFonts = details.originalFonts
+                replacementFonts = details.replacementFonts
             } else {
+                originalFonts = pageObjects.map(baseFontName)
+                replacementFonts = originalFonts
                 for (object, segment) in zip(pageObjects, segments) {
                     guard setText(segment, on: object) else {
                         throw PDFTextEditingError.unsupportedReplacement
                     }
                 }
+                replacementBounds = pageObjects.map { pageObjectBounds($0) ?? .null }
             }
+            try validateGeometry(original: draft.objects.map(\.bounds), replacement: replacementBounds)
             guard FPDFPage_GenerateContent(page) != 0 else { throw PDFTextEditingError.saveFailed }
-            return try save(document)
+            return PDFTextEditResult(
+                data: try save(document),
+                diagnostics: PDFTextEditDiagnostics(
+                    originalFontNames: originalFonts,
+                    replacementFontNames: replacementFonts,
+                    originalBounds: draft.objects.map(\.bounds),
+                    replacementBounds: replacementBounds,
+                    usedStandardFontSubstitution: isBasicLatin
+                )
+            )
+        }
+    }
+
+    private static func pageObjectBounds(_ object: FPDF_PAGEOBJECT) -> CGRect? {
+        var left: Float = 0, bottom: Float = 0, right: Float = 0, top: Float = 0
+        guard FPDFPageObj_GetBounds(object, &left, &bottom, &right, &top) != 0 else { return nil }
+        return CGRect(x: CGFloat(left), y: CGFloat(bottom), width: CGFloat(right - left), height: CGFloat(top - bottom))
+    }
+
+    private static func validateGeometry(original: [CGRect], replacement: [CGRect]) throws {
+        guard original.count == replacement.count else {
+            throw PDFTextEditingError.unsafeLayout("The generated line count changed unexpectedly.")
+        }
+        for (index, pair) in zip(original, replacement).enumerated() {
+            let old = pair.0
+            let new = pair.1
+            if new.isNull || new.isEmpty { continue }
+            let horizontalTolerance = max(4, old.width * 0.05)
+            let verticalTolerance = max(2, old.height * 0.20)
+            let permitted = old.insetBy(dx: -horizontalTolerance, dy: -verticalTolerance)
+            guard permitted.contains(new) else {
+                throw PDFTextEditingError.unsafeLayout("Replacement line \(index + 1) extends beyond its original text region.")
+            }
         }
     }
 

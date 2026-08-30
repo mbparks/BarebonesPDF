@@ -431,19 +431,40 @@ final class DocumentState: NSObject, ObservableObject {
         }
     }
 
-    func applyTextEdit(_ replacement: String) {
-        guard let draft = textEditDraft, let before = snapshot() else { return }
-        performBusy("Rewriting text…") {
-            let updated = try PDFiumTextEditingService.replaceText(in: before, draft: draft, with: replacement)
-            guard let document = PDFDocument(data: updated) else { throw PDFTextEditingError.saveFailed }
-            pdfDocument = document
-            onDocumentReplaced?(document)
-            finishReplacingDocument()
-            pdfView?.document = document
-            registerUndo(snapshot: before, actionName: "Rewrite PDF Text")
-            changed()
-            textEditDraft = nil
+    func prepareTextEdit(_ replacement: String) -> PDFTextEditPreview? {
+        guard let draft = textEditDraft, let before = snapshot() else { return nil }
+        isBusy = true
+        busyMessage = "Validating text edit…"
+        defer {
+            isBusy = false
+            busyMessage = ""
         }
+        do {
+            let result = try PDFiumTextEditingService.replaceText(in: before, draft: draft, with: replacement)
+            return try TextEditValidationService.preparePreview(
+                before: before,
+                result: result,
+                draft: draft,
+                replacement: replacement
+            )
+        } catch {
+            present(title: "Text Edit Was Blocked", message: error.localizedDescription)
+            return nil
+        }
+    }
+
+    func commitTextEdit(_ preview: PDFTextEditPreview) {
+        guard let document = PDFDocument(data: preview.editedData) else {
+            present(error: PDFTextEditingError.saveFailed)
+            return
+        }
+        pdfDocument = document
+        onDocumentReplaced?(document)
+        finishReplacingDocument()
+        pdfView?.document = document
+        registerUndo(snapshot: preview.sourceData, actionName: "Rewrite PDF Text")
+        changed()
+        textEditDraft = nil
     }
 
     func present(error: Error) {

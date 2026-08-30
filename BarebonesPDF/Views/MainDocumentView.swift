@@ -70,7 +70,8 @@ struct MainDocumentView: View {
         .sheet(item: $state.textEditDraft) { draft in
             TextContentEditor(
                 draft: draft,
-                apply: state.applyTextEdit,
+                prepare: state.prepareTextEdit,
+                apply: state.commitTextEdit,
                 cancel: { state.textEditDraft = nil }
             )
         }
