@@ -8,6 +8,7 @@ struct PDFTextEditPreview {
     let afterImage: NSImage
     let diagnostics: PDFTextEditDiagnostics
     let validationSummary: [String]
+    let validationWarnings: [String]
 }
 
 enum TextEditPreparationOutcome {
@@ -52,9 +53,10 @@ enum TextEditValidationService {
             after: afterRender
         )
         let threshold = max(120, (beforeRender.width * beforeRender.height) / 20_000)
-        guard unexpectedPixels <= threshold else {
-            throw PDFTextEditingError.validationFailed(
-                "The rendered page changed outside the selected text region (\(unexpectedPixels) unexpected pixels)."
+        var warnings = result.diagnostics.geometryWarnings
+        if unexpectedPixels > threshold {
+            warnings.append(
+                "The render comparison found \(unexpectedPixels) changed pixels outside the expected edit mask. Inspect the before/after preview before applying."
             )
         }
 
@@ -67,8 +69,9 @@ enum TextEditValidationService {
             validationSummary: [
                 "Page count, dimensions, rotation, and annotation counts are unchanged.",
                 "Replacement text passed save-and-reopen extraction verification.",
-                "No material rendered changes were detected outside the selected region."
-            ]
+                "Before/after rendered pages were generated for visual review."
+            ],
+            validationWarnings: warnings
         )
     }
 

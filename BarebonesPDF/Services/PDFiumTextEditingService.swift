@@ -21,6 +21,7 @@ struct PDFTextEditDiagnostics {
     let originalBounds: [CGRect]
     let replacementBounds: [CGRect]
     let usedStandardFontSubstitution: Bool
+    let geometryWarnings: [String]
 }
 
 struct PDFTextEditResult {
@@ -357,7 +358,11 @@ enum PDFiumTextEditingService {
                 }
                 replacementBounds = pageObjects.map { pageObjectBounds($0) ?? .null }
             }
-            try validateGeometry(original: draft.objects.map(\.bounds), replacement: replacementBounds)
+            try validatePageBoundaries(page: page, replacement: replacementBounds)
+            let geometryWarnings = geometryWarnings(
+                original: draft.objects.map(\.bounds),
+                replacement: replacementBounds
+            )
             guard FPDFPage_GenerateContent(page) != 0 else { throw PDFTextEditingError.saveFailed }
             return PDFTextEditResult(
                 data: try save(document),
@@ -366,7 +371,8 @@ enum PDFiumTextEditingService {
                     replacementFontNames: replacementFonts,
                     originalBounds: draft.objects.map(\.bounds),
                     replacementBounds: replacementBounds,
-                    usedStandardFontSubstitution: isBasicLatin
+                    usedStandardFontSubstitution: isBasicLatin,
+                    geometryWarnings: geometryWarnings
                 )
             )
         }
@@ -378,10 +384,11 @@ enum PDFiumTextEditingService {
         return CGRect(x: CGFloat(left), y: CGFloat(bottom), width: CGFloat(right - left), height: CGFloat(top - bottom))
     }
 
-    private static func validateGeometry(original: [CGRect], replacement: [CGRect]) throws {
+    private static func geometryWarnings(original: [CGRect], replacement: [CGRect]) -> [String] {
         guard original.count == replacement.count else {
-            throw PDFTextEditingError.unsafeLayout("The generated line count changed unexpectedly.")
+            return ["The generated line count differs from the original selection."]
         }
+        var warnings: [String] = []
         for (index, pair) in zip(original, replacement).enumerated() {
             let old = pair.0
             let new = pair.1
@@ -389,8 +396,23 @@ enum PDFiumTextEditingService {
             let horizontalTolerance = max(4, old.width * 0.05)
             let verticalTolerance = max(2, old.height * 0.20)
             let permitted = old.insetBy(dx: -horizontalTolerance, dy: -verticalTolerance)
-            guard permitted.contains(new) else {
-                throw PDFTextEditingError.unsafeLayout("Replacement line \(index + 1) extends beyond its original text region.")
+            if !permitted.contains(new) {
+                warnings.append("Replacement line \(index + 1) extends beyond its original text region; inspect the preview closely.")
+            }
+        }
+        return warnings
+    }
+
+    private static func validatePageBoundaries(page: FPDF_PAGE, replacement: [CGRect]) throws {
+        let pageBounds = CGRect(
+            x: 0,
+            y: 0,
+            width: CGFloat(FPDF_GetPageWidthF(page)),
+            height: CGFloat(FPDF_GetPageHeightF(page))
+        ).insetBy(dx: -2, dy: -2)
+        for (index, bounds) in replacement.enumerated() where !bounds.isNull && !bounds.isEmpty {
+            guard pageBounds.contains(bounds) else {
+                throw PDFTextEditingError.unsafeLayout("Replacement line \(index + 1) extends outside the page boundary.")
             }
         }
     }

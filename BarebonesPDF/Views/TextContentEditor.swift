@@ -110,6 +110,18 @@ struct TextContentEditor: View {
             }
         }
 
+        if !preview.validationWarnings.isEmpty {
+            VStack(alignment: .leading, spacing: 5) {
+                ForEach(preview.validationWarnings, id: \.self) { warning in
+                    Label(warning, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+            .padding(8)
+            .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 7))
+        }
+
         Text("Inspect the edited paragraph closely. Apply commits the validated in-memory copy and creates an Undo checkpoint; Cancel leaves the document unchanged.")
             .font(.caption)
             .foregroundStyle(.secondary)
