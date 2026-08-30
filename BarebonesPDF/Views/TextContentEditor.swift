@@ -146,8 +146,7 @@ struct TextContentEditor: View {
     private func beginValidation() {
         validationError = nil
         isValidating = true
-        Task { @MainActor in
-            await Task<Void, Never>.yield()
+        DispatchQueue.main.async {
             switch prepare(replacement) {
             case .success(let generatedPreview):
                 preview = generatedPreview
