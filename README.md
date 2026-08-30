@@ -1,6 +1,6 @@
 # BarebonesPDF
 
-BarebonesPDF is a small native macOS Portable Document Format (PDF) reader and minor editor built with Swift, SwiftUI, and Apple's PDFKit framework. It is designed for reading, annotation, page organization, metadata edits, and straightforward exports without accounts, network access, analytics, or third-party dependencies.
+BarebonesPDF is a small native macOS Portable Document Format (PDF) reader and minor editor built with Swift, SwiftUI, Apple's PDFKit framework, and the free PDFium engine. It is designed for reading, annotation, page organization, metadata edits, limited existing-text rewrites, and straightforward exports without accounts, telemetry, or analytics.
 
 The bundle identifier is `com.greenshoegarage.BarebonesPDF`. The app targets macOS 13 Ventura or newer and runs natively on Apple silicon and Intel Macs.
 
@@ -9,6 +9,7 @@ The bundle identifier is `com.greenshoegarage.BarebonesPDF`. The app targets mac
 - Opens PDFs from the Open dialog, Finder's **Open With** command, recent-document history, a window drop, or the Dock icon.
 - Displays single-page or vertically continuous layouts with thumbnails, page navigation, Fit Page, Fit Width, Actual Size, and manual zoom.
 - Selects and copies PDF text.
+- Rewrites a clicked PDF text object while retaining its existing font, size, color, transform, and placement when the embedded font can encode the replacement.
 - Searches document text and moves between results.
 - Prints through the standard macOS print panel and supports standard full-screen windows.
 - Prompts for supported password-protected PDFs using PDFKit's local unlock API.
@@ -24,7 +25,9 @@ Every application control is connected to an implemented action. Commands are di
 
 ## What “editing” does not mean
 
-BarebonesPDF does **not** modify the original page-content objects that hold text, fonts, photographs, paths, or vector artwork. PDFKit does not expose a dependable high-level editor for that content. Existing text can be selected and copied, and annotations can be placed over a page, but original text cannot be rewritten.
+BarebonesPDF can rewrite the string stored by a basic existing PDF text object. It does **not** provide paragraph reflow, font substitution, OCR, or editing of outlined letters, photographs, paths, vector artwork, nested form objects, or every possible PDF text encoding. If PDFium cannot safely identify or encode a clicked object, the app refuses the edit and leaves the document unchanged.
+
+PDFium is downloaded by Swift Package Manager at build time from the MIT-licensed `espresso3389/pdfium-xcframework` distribution. It is a free, open-source dependency; the app itself performs no network requests at runtime.
 
 BarebonesPDF also is not a forms authoring tool, Optical Character Recognition (OCR) tool, redaction engine, certificate-signing product, PDF optimizer, or prepress application. It does not claim those capabilities.
 
@@ -127,7 +130,7 @@ All primary commands also appear in the macOS menu bar. The standard document co
 
 ## Annotation behavior
 
-Choose the annotation button in the window toolbar to reveal the compact tool row. Text markup tools operate on dragged text selections. Shape and ink tools use click-drag gestures. Text boxes, notes, and signature images are placed with a click. Select mode lets an annotation be selected and moved. The Properties inspector edits applicable text, color, opacity, line width, font family, and font size.
+Choose the annotation button in the window toolbar to reveal the compact tool row. Choose **Edit Existing Text**, click a supported text object, enter its replacement, and save. This rewrites the content object and does not reflow surrounding text. Text markup tools operate on dragged text selections. Shape and ink tools use click-drag gestures. Text boxes, notes, and signature images are placed with a click. Select mode lets an annotation be selected and moved. The Properties inspector edits applicable annotation text, color, opacity, line width, font family, and font size.
 
 Signature images are stored as custom PDF stamp annotations with the image bytes in a private annotation dictionary entry. They remain movable and reloadable in BarebonesPDF. PDFKit does not expose a standards-complete arbitrary image-stamp appearance API, so rendering or editability in third-party PDF software is not guaranteed. This feature is visual markup, not a cryptographic or legally validated digital signature.
 
@@ -143,6 +146,7 @@ Deleting a page is recoverable with Undo and therefore does not show an extra co
 - Cryptographic signatures can become invalid after any document edit. BarebonesPDF does not re-sign PDFs.
 - PDFKit can unlock many password-protected documents for viewing, but BarebonesPDF does not promise to preserve the original encryption policy after editing.
 - Search and text selection depend on the PDF's embedded text layer. Image-only scans require external Optical Character Recognition (OCR), which is outside this project.
+- Existing-text rewrites are limited to top-level text objects whose embedded font maps the requested Unicode characters. They retain the original styling and placement, do not reflow, and may overflow their original area. Scans, outlined text, and text nested in form objects are not editable.
 - Very large PDF mutations may briefly consume additional memory because Undo checkpoints retain a complete pre-operation PDF representation. Progress is shown for page operations and exports, but PDFKit's serialization API does not expose byte-level progress.
 - Page rotation is a saved page operation. PDFKit does not provide a separate, dependable view-only page-orientation transform on macOS.
 - Free-text layout, annotation appearances, and blend behavior can differ between PDF viewers.

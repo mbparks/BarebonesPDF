@@ -2,6 +2,7 @@ import Foundation
 
 enum AnnotationTool: String, CaseIterable, Identifiable {
     case select
+    case editText
     case highlight
     case underline
     case strikethrough
@@ -20,6 +21,7 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .select: return "Select"
+        case .editText: return "Edit Existing Text"
         case .highlight: return "Highlight"
         case .underline: return "Underline"
         case .strikethrough: return "Strikethrough"
@@ -38,6 +40,7 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
     var symbolName: String {
         switch self {
         case .select: return "cursorarrow"
+        case .editText: return "character.cursor.ibeam"
         case .highlight: return "highlighter"
         case .underline: return "underline"
         case .strikethrough: return "strikethrough"

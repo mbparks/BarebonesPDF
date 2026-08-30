@@ -131,6 +131,9 @@ final class InteractivePDFView: PDFView {
                 state.select(annotation: nil)
                 super.mouseDown(with: event)
             }
+        case .editText:
+            state.select(annotation: nil)
+            state.beginTextEdit(on: page, at: pagePoint)
         case .eraser:
             if let annotation = annotation(at: pagePoint, on: page), isEditable(annotation) {
                 state.select(annotation: annotation)

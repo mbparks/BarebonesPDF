@@ -7,7 +7,7 @@ struct AnnotationToolbar: View {
     @State private var choosingSignature = false
 
     private let primaryTools: [AnnotationTool] = [
-        .select, .highlight, .underline, .strikethrough, .ink,
+        .select, .editText, .highlight, .underline, .strikethrough, .ink,
         .textBox, .note, .rectangle, .oval, .line, .arrow, .eraser
     ]
 

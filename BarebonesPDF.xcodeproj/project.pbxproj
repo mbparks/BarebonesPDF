@@ -28,6 +28,9 @@
 		B01400000000000000000014 /* ThumbnailSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01400000000000000000014 /* ThumbnailSidebar.swift */; };
 		B01500000000000000000015 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01500000000000000000015 /* WelcomeView.swift */; };
 		B01600000000000000000016 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A01600000000000000000016 /* Assets.xcassets */; };
+		B01700000000000000000017 /* PDFiumTextEditingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01900000000000000000019 /* PDFiumTextEditingService.swift */; };
+		B01800000000000000000018 /* TextContentEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01A0000000000000000001A /* TextContentEditor.swift */; };
+		B01900000000000000000019 /* CPDFium in Frameworks */ = {isa = PBXBuildFile; productRef = P00200000000000000000002 /* CPDFium */; };
 		BE0100000000000000000001 /* PageEditingEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00100000000000000000001 /* PageEditingEngineTests.swift */; };
 		BE0200000000000000000002 /* DocumentStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00200000000000000000002 /* DocumentStateTests.swift */; };
 		BF0100000000000000000001 /* BarebonesPDFUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10100000000000000000001 /* BarebonesPDFUITests.swift */; };
@@ -75,6 +78,8 @@
 		A01600000000000000000016 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = BarebonesPDF/Assets.xcassets; sourceTree = "<group>"; };
 		A01700000000000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = BarebonesPDF/Info.plist; sourceTree = "<group>"; };
 		A01800000000000000000018 /* BarebonesPDF.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BarebonesPDF/BarebonesPDF.entitlements; sourceTree = "<group>"; };
+		A01900000000000000000019 /* PDFiumTextEditingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Services/PDFiumTextEditingService.swift; sourceTree = "<group>"; };
+		A01A0000000000000000001A /* TextContentEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/TextContentEditor.swift; sourceTree = "<group>"; };
 		E00100000000000000000001 /* PageEditingEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFTests/PageEditingEngineTests.swift; sourceTree = "<group>"; };
 		E00200000000000000000002 /* DocumentStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFTests/DocumentStateTests.swift; sourceTree = "<group>"; };
 		E10100000000000000000001 /* BarebonesPDFUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFUITests/BarebonesPDFUITests.swift; sourceTree = "<group>"; };
@@ -84,7 +89,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F00100000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F00100000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (B01900000000000000000019,); runOnlyForDeploymentPostprocessing = 0; };
 		F00200000000000000000002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		F00300000000000000000003 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
@@ -110,6 +115,7 @@
 				A00D0000000000000000000D, A00E0000000000000000000E, A00F0000000000000000000F, A01000000000000000000010,
 				A01100000000000000000011, A01200000000000000000012, A01300000000000000000013, A01400000000000000000014, A01500000000000000000015,
 				A01600000000000000000016, A01700000000000000000017, A01800000000000000000018,
+				A01900000000000000000019, A01A0000000000000000001A,
 			);
 			name = BarebonesPDF;
 			sourceTree = "<group>";
@@ -127,6 +133,7 @@
 			buildRules = ();
 			dependencies = ();
 			name = BarebonesPDF;
+			packageProductDependencies = (P00200000000000000000002 /* CPDFium */,);
 			productName = BarebonesPDF;
 			productReference = E20100000000000000000001;
 			productType = "com.apple.product-type.application";
@@ -175,6 +182,7 @@
 			knownRegions = (en, Base,);
 			mainGroup = CC0100000000000000000001;
 			productRefGroup = CC0500000000000000000005;
+			packageReferences = (P00100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/PDFiumPackage" */,);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (CA0100000000000000000001, CA0200000000000000000002, CA0300000000000000000003,);
@@ -190,7 +198,7 @@
 /* Begin PBXSourcesBuildPhase section */
 		F10100000000000000000001 = {
 			isa = PBXSourcesBuildPhase; buildActionMask = 2147483647;
-			files = (B00100000000000000000001, B00200000000000000000002, B00300000000000000000003, B00400000000000000000004, B00500000000000000000005, B00600000000000000000006, B00700000000000000000007, B00800000000000000000008, B00900000000000000000009, B00A0000000000000000000A, B00B0000000000000000000B, B00C0000000000000000000C, B00D0000000000000000000D, B00E0000000000000000000E, B00F0000000000000000000F, B01000000000000000000010, B01100000000000000000011, B01200000000000000000012, B01300000000000000000013, B01400000000000000000014, B01500000000000000000015,);
+			files = (B00100000000000000000001, B00200000000000000000002, B00300000000000000000003, B00400000000000000000004, B00500000000000000000005, B00600000000000000000006, B00700000000000000000007, B00800000000000000000008, B00900000000000000000009, B00A0000000000000000000A, B00B0000000000000000000B, B00C0000000000000000000C, B00D0000000000000000000D, B00E0000000000000000000E, B00F0000000000000000000F, B01000000000000000000010, B01100000000000000000011, B01200000000000000000012, B01300000000000000000013, B01400000000000000000014, B01500000000000000000015, B01700000000000000000017, B01800000000000000000018,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F10200000000000000000002 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (BE0100000000000000000001, BE0200000000000000000002,); runOnlyForDeploymentPostprocessing = 0; };
@@ -201,6 +209,20 @@
 		D00100000000000000000001 = {isa = PBXTargetDependency; target = CA0100000000000000000001; targetProxy = C00100000000000000000001; };
 		D00200000000000000000002 = {isa = PBXTargetDependency; target = CA0100000000000000000001; targetProxy = C00200000000000000000002; };
 /* End PBXTargetDependency section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		P00100000000000000000001 /* XCLocalSwiftPackageReference "Vendor/PDFiumPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Vendor/PDFiumPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		P00200000000000000000002 /* CPDFium */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CPDFium;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BC0000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; name = Debug; };

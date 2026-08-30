@@ -67,6 +67,13 @@ struct MainDocumentView: View {
         .sheet(isPresented: $state.metadataVisible) {
             MetadataInspector(state: state)
         }
+        .sheet(item: $state.textEditDraft) { draft in
+            TextContentEditor(
+                draft: draft,
+                apply: state.applyTextEdit,
+                cancel: { state.textEditDraft = nil }
+            )
+        }
         .sheet(isPresented: $state.needsPassword) {
             passwordSheet
         }

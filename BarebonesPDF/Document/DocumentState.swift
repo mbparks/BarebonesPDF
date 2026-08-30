@@ -48,6 +48,7 @@ final class DocumentState: NSObject, ObservableObject {
     @Published private(set) var busyMessage = ""
     @Published private(set) var isEdited = false
     @Published var presentedError: PresentedError?
+    @Published var textEditDraft: PDFTextEditDraft?
     @Published var needsPassword = false
     @Published var fileURL: URL?
 
@@ -413,6 +414,37 @@ final class DocumentState: NSObject, ObservableObject {
     }
 
     func snapshot() -> Data? { pdfDocument.dataRepresentation() }
+
+    func beginTextEdit(on page: PDFPage, at pagePoint: CGPoint) {
+        guard let data = snapshot() else {
+            present(error: BarebonesDocumentError.unableToEncode)
+            return
+        }
+        let pageIndex = pdfDocument.index(for: page)
+        guard pageIndex != NSNotFound else { return }
+        let mediaBox = page.bounds(for: .mediaBox)
+        let pdfiumPoint = CGPoint(x: pagePoint.x - mediaBox.minX, y: pagePoint.y - mediaBox.minY)
+        do {
+            textEditDraft = try PDFiumTextEditingService.textObject(in: data, pageIndex: pageIndex, near: pdfiumPoint)
+        } catch {
+            present(title: "Text Cannot Be Edited", message: error.localizedDescription)
+        }
+    }
+
+    func applyTextEdit(_ replacement: String) {
+        guard let draft = textEditDraft, let before = snapshot() else { return }
+        performBusy("Rewriting text…") {
+            let updated = try PDFiumTextEditingService.replaceText(in: before, draft: draft, with: replacement)
+            guard let document = PDFDocument(data: updated) else { throw PDFTextEditingError.saveFailed }
+            pdfDocument = document
+            onDocumentReplaced?(document)
+            finishReplacingDocument()
+            pdfView?.document = document
+            registerUndo(snapshot: before, actionName: "Rewrite PDF Text")
+            changed()
+            textEditDraft = nil
+        }
+    }
 
     func present(error: Error) {
         present(title: "BarebonesPDF Could Not Complete That Action", message: error.localizedDescription)
