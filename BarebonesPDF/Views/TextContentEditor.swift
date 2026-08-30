@@ -31,7 +31,8 @@ struct TextContentEditor: View {
             }
         }
         .padding(20)
-        .frame(width: preview == nil ? 540 : 820, minHeight: preview == nil ? 320 : 650)
+        .frame(width: preview == nil ? 540 : 820)
+        .frame(minHeight: preview == nil ? 320 : 650)
     }
 
     private var editorView: some View {
