@@ -133,16 +133,8 @@ final class InteractivePDFView: PDFView {
             }
         case .editText:
             state.select(annotation: nil)
-            guard let word = page.selectionForWord(at: pagePoint) else {
-                clearSelection()
-                state.present(
-                    title: "Text Cannot Be Selected",
-                    message: "No selectable text was found there. This may be a scanned page or outlined artwork."
-                )
-                return
-            }
-            setCurrentSelection(word, animate: false)
-            state.beginTextEdit(on: page, selectionBounds: word.bounds(for: page))
+            clearSelection()
+            super.mouseDown(with: event)
         case .eraser:
             if let annotation = annotation(at: pagePoint, on: page), isEditable(annotation) {
                 state.select(annotation: annotation)
@@ -178,6 +170,8 @@ final class InteractivePDFView: PDFView {
             gesturePoints.append(point)
         case .highlight, .underline, .strikethrough:
             super.mouseDragged(with: event)
+        case .editText:
+            super.mouseDragged(with: event)
         default:
             break
         }
@@ -201,6 +195,27 @@ final class InteractivePDFView: PDFView {
         case .highlight, .underline, .strikethrough:
             super.mouseUp(with: event)
             addMarkupAnnotations(tool: state.activeTool, state: state, beforeData: before)
+        case .editText:
+            super.mouseUp(with: event)
+            let selection: PDFSelection?
+            if let draggedSelection = currentSelection,
+               draggedSelection.string?.isEmpty == false {
+                selection = draggedSelection
+            } else {
+                selection = page.selectionForWord(at: endPoint)
+                if let selection { setCurrentSelection(selection, animate: false) }
+            }
+            guard let selection,
+                  selection.pages.count == 1,
+                  selection.pages.first === page else {
+                clearSelection()
+                state.present(
+                    title: "Text Cannot Be Selected",
+                    message: "Drag across text on one page. Scanned pages and outlined artwork do not contain selectable PDF text."
+                )
+                break
+            }
+            state.beginTextEdit(on: page, selectionBounds: selection.bounds(for: page))
         case .ink:
             gesturePoints.append(endPoint)
             if let annotation = makeInkAnnotation(points: gesturePoints, state: state) {
