@@ -215,7 +215,14 @@ final class InteractivePDFView: PDFView {
                 )
                 break
             }
-            state.beginTextEdit(on: page, selectionBounds: selection.bounds(for: page))
+            let lineBounds = selection.selectionsByLine()
+                .filter { $0.pages.first === page }
+                .map { $0.bounds(for: page) }
+                .filter { !$0.isEmpty }
+            state.beginTextEdit(
+                on: page,
+                selectionBounds: lineBounds.isEmpty ? [selection.bounds(for: page)] : lineBounds
+            )
         case .ink:
             gesturePoints.append(endPoint)
             if let annotation = makeInkAnnotation(points: gesturePoints, state: state) {

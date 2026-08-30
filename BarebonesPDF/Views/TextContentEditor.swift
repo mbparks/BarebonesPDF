@@ -21,7 +21,7 @@ struct TextContentEditor: View {
                 .frame(minWidth: 420, minHeight: 110)
                 .border(Color.secondary.opacity(0.35))
                 .accessibilityLabel("Replacement text")
-            Text("The existing font, size, color, and placement are preserved. Text does not reflow, and the embedded font may not contain every character.")
+            Text("The selected PDF text objects are rewritten in place. Paragraph text is distributed across the existing lines; fonts and placement are preserved, but this is approximate reflow and embedded fonts may not contain every character.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

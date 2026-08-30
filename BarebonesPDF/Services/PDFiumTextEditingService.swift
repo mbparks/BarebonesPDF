@@ -5,6 +5,11 @@ import CPDFium
 struct PDFTextEditDraft: Identifiable {
     let id = UUID()
     let pageIndex: Int
+    let objects: [PDFTextObjectDraft]
+    let originalText: String
+}
+
+struct PDFTextObjectDraft {
     let objectIndex: Int
     let originalText: String
     let bounds: CGRect
@@ -63,7 +68,7 @@ enum PDFiumTextEditingService {
     static func textObject(
         in data: Data,
         pageIndex: Int,
-        overlapping targetBounds: CGRect
+        overlapping selectionRegions: [CGRect]
     ) throws -> PDFTextEditDraft {
         _ = PDFiumRuntime.shared
         return try withDocument(data) { document in
@@ -86,25 +91,78 @@ enum PDFiumTextEditingService {
                 var top: Float = 0
                 guard FPDFPageObj_GetBounds(object, &left, &bottom, &right, &top) != 0 else { continue }
                 let bounds = CGRect(x: CGFloat(left), y: CGFloat(bottom), width: CGFloat(right - left), height: CGFloat(top - bottom))
-                let expandedTarget = targetBounds.insetBy(dx: -4, dy: -4)
-                guard bounds.intersects(expandedTarget),
+                guard selectionRegions.contains(where: { bounds.intersects($0.insetBy(dx: -4, dy: -3)) }),
                       let text = objectText(object, textPage: textPage),
                       !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
                 candidates.append((index, text, bounds))
             }
 
-            guard let match = candidates.max(by: {
-                intersectionArea($0.bounds, targetBounds) < intersectionArea($1.bounds, targetBounds)
-            }) else {
+            let selected = candidates
+                .filter { candidate in
+                    selectionRegions.contains { intersectionArea(candidate.bounds, $0) > 0 }
+                }
+                .sorted(by: readingOrder)
+            guard !selected.isEmpty else {
                 throw PDFTextEditingError.noEditableText
             }
-            return PDFTextEditDraft(pageIndex: pageIndex, objectIndex: match.index, originalText: match.text, bounds: match.bounds)
+            let objects = selected.map {
+                PDFTextObjectDraft(objectIndex: $0.index, originalText: $0.text, bounds: $0.bounds)
+            }
+            return PDFTextEditDraft(
+                pageIndex: pageIndex,
+                objects: objects,
+                originalText: joinedText(from: objects)
+            )
         }
     }
 
     private static func intersectionArea(_ lhs: CGRect, _ rhs: CGRect) -> CGFloat {
         let intersection = lhs.intersection(rhs)
         return intersection.isNull ? 0 : intersection.width * intersection.height
+    }
+
+    private static func readingOrder(
+        _ lhs: (index: Int, text: String, bounds: CGRect),
+        _ rhs: (index: Int, text: String, bounds: CGRect)
+    ) -> Bool {
+        let tolerance = max(2, min(lhs.bounds.height, rhs.bounds.height) * 0.45)
+        if abs(lhs.bounds.midY - rhs.bounds.midY) <= tolerance {
+            return lhs.bounds.minX < rhs.bounds.minX
+        }
+        return lhs.bounds.midY > rhs.bounds.midY
+    }
+
+    private static func joinedText(from objects: [PDFTextObjectDraft]) -> String {
+        var result = ""
+        var previous: PDFTextObjectDraft?
+        for object in objects {
+            if let previous {
+                let tolerance = max(2, min(previous.bounds.height, object.bounds.height) * 0.45)
+                result += abs(previous.bounds.midY - object.bounds.midY) <= tolerance ? " " : "\n"
+            }
+            result += object.originalText
+            previous = object
+        }
+        return result
+    }
+
+    private static func replacementSegments(_ text: String, capacities: [Int]) -> [String] {
+        guard capacities.count > 1 else { return [text] }
+        var words = text.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+        var result: [String] = []
+        for capacity in capacities.dropLast() {
+            var line = ""
+            while let word = words.first {
+                let candidate = line.isEmpty ? word : "\(line) \(word)"
+                if !line.isEmpty && candidate.count > capacity { break }
+                line = candidate
+                words.removeFirst()
+                if line.count >= capacity { break }
+            }
+            result.append(line)
+        }
+        result.append(words.joined(separator: " "))
+        return result
     }
 
     static func replaceText(in data: Data, draft: PDFTextEditDraft, with replacement: String) throws -> Data {
@@ -115,22 +173,33 @@ enum PDFiumTextEditingService {
                 throw PDFTextEditingError.pageUnavailable
             }
             defer { FPDF_ClosePage(page) }
-            guard let object = FPDFPage_GetObject(page, Int32(draft.objectIndex)),
-                  FPDFPageObj_GetType(object) == FPDF_PAGEOBJ_TEXT,
-                  let textPage = FPDFText_LoadPage(page) else {
+            guard let textPage = FPDFText_LoadPage(page) else {
                 throw PDFTextEditingError.textChanged
             }
             defer { FPDFText_ClosePage(textPage) }
-            guard objectText(object, textPage: textPage) == draft.originalText else {
-                throw PDFTextEditingError.textChanged
+
+            var pageObjects: [FPDF_PAGEOBJECT] = []
+            for item in draft.objects {
+                guard let object = FPDFPage_GetObject(page, Int32(item.objectIndex)),
+                      FPDFPageObj_GetType(object) == FPDF_PAGEOBJ_TEXT,
+                      objectText(object, textPage: textPage) == item.originalText else {
+                    throw PDFTextEditingError.textChanged
+                }
+                pageObjects.append(object)
             }
 
-            var utf16 = Array(replacement.utf16)
-            utf16.append(0)
-            let changed = utf16.withUnsafeBufferPointer { buffer in
-                FPDFText_SetText(object, buffer.baseAddress)
+            let segments = replacementSegments(
+                replacement,
+                capacities: draft.objects.map { max(1, $0.originalText.count) }
+            )
+            for (object, segment) in zip(pageObjects, segments) {
+                var utf16 = Array(segment.utf16)
+                utf16.append(0)
+                let changed = utf16.withUnsafeBufferPointer { buffer in
+                    FPDFText_SetText(object, buffer.baseAddress)
+                }
+                guard changed != 0 else { throw PDFTextEditingError.unsupportedReplacement }
             }
-            guard changed != 0 else { throw PDFTextEditingError.unsupportedReplacement }
             guard FPDFPage_GenerateContent(page) != 0 else { throw PDFTextEditingError.saveFailed }
             return try save(document)
         }
