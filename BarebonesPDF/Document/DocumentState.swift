@@ -415,7 +415,7 @@ final class DocumentState: NSObject, ObservableObject {
 
     func snapshot() -> Data? { pdfDocument.dataRepresentation() }
 
-    func beginTextEdit(on page: PDFPage, at pagePoint: CGPoint) {
+    func beginTextEdit(on page: PDFPage, selectionBounds: CGRect) {
         guard let data = snapshot() else {
             present(error: BarebonesDocumentError.unableToEncode)
             return
@@ -423,9 +423,9 @@ final class DocumentState: NSObject, ObservableObject {
         let pageIndex = pdfDocument.index(for: page)
         guard pageIndex != NSNotFound else { return }
         let mediaBox = page.bounds(for: .mediaBox)
-        let pdfiumPoint = CGPoint(x: pagePoint.x - mediaBox.minX, y: pagePoint.y - mediaBox.minY)
+        let pdfiumBounds = selectionBounds.offsetBy(dx: -mediaBox.minX, dy: -mediaBox.minY)
         do {
-            textEditDraft = try PDFiumTextEditingService.textObject(in: data, pageIndex: pageIndex, near: pdfiumPoint)
+            textEditDraft = try PDFiumTextEditingService.textObject(in: data, pageIndex: pageIndex, overlapping: pdfiumBounds)
         } catch {
             present(title: "Text Cannot Be Edited", message: error.localizedDescription)
         }

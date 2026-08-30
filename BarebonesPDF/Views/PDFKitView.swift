@@ -133,7 +133,16 @@ final class InteractivePDFView: PDFView {
             }
         case .editText:
             state.select(annotation: nil)
-            state.beginTextEdit(on: page, at: pagePoint)
+            guard let word = page.selectionForWord(at: pagePoint) else {
+                clearSelection()
+                state.present(
+                    title: "Text Cannot Be Selected",
+                    message: "No selectable text was found there. This may be a scanned page or outlined artwork."
+                )
+                return
+            }
+            setCurrentSelection(word, animate: false)
+            state.beginTextEdit(on: page, selectionBounds: word.bounds(for: page))
         case .eraser:
             if let annotation = annotation(at: pagePoint, on: page), isEditable(annotation) {
                 state.select(annotation: annotation)

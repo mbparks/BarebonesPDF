@@ -63,7 +63,7 @@ enum PDFiumTextEditingService {
     static func textObject(
         in data: Data,
         pageIndex: Int,
-        near point: CGPoint
+        overlapping targetBounds: CGRect
     ) throws -> PDFTextEditDraft {
         _ = PDFiumRuntime.shared
         return try withDocument(data) { document in
@@ -86,17 +86,25 @@ enum PDFiumTextEditingService {
                 var top: Float = 0
                 guard FPDFPageObj_GetBounds(object, &left, &bottom, &right, &top) != 0 else { continue }
                 let bounds = CGRect(x: CGFloat(left), y: CGFloat(bottom), width: CGFloat(right - left), height: CGFloat(top - bottom))
-                guard bounds.insetBy(dx: -4, dy: -4).contains(point),
+                let expandedTarget = targetBounds.insetBy(dx: -4, dy: -4)
+                guard bounds.intersects(expandedTarget),
                       let text = objectText(object, textPage: textPage),
                       !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
                 candidates.append((index, text, bounds))
             }
 
-            guard let match = candidates.min(by: { $0.bounds.width * $0.bounds.height < $1.bounds.width * $1.bounds.height }) else {
+            guard let match = candidates.max(by: {
+                intersectionArea($0.bounds, targetBounds) < intersectionArea($1.bounds, targetBounds)
+            }) else {
                 throw PDFTextEditingError.noEditableText
             }
             return PDFTextEditDraft(pageIndex: pageIndex, objectIndex: match.index, originalText: match.text, bounds: match.bounds)
         }
+    }
+
+    private static func intersectionArea(_ lhs: CGRect, _ rhs: CGRect) -> CGFloat {
+        let intersection = lhs.intersection(rhs)
+        return intersection.isNull ? 0 : intersection.width * intersection.height
     }
 
     static func replaceText(in data: Data, draft: PDFTextEditDraft, with replacement: String) throws -> Data {
