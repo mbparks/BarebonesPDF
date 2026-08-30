@@ -55,7 +55,7 @@ private let pdfiumWriteBlock: @convention(c) (
     pdfiumWriterLock.lock()
     defer { pdfiumWriterLock.unlock() }
     guard pdfiumWriterBuffers[key] != nil else { return 0 }
-    pdfiumWriterBuffers[key]!.append(bytes.assumingMemoryBound(to: UInt8.self), count: count)
+    pdfiumWriterBuffers[key]!.append(bytes.assumingMemoryBound(to: UInt8.self), count: Int(count))
     return 1
 }
 
