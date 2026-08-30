@@ -1,0 +1,224 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B00100000000000000000001 /* BarebonesPDFApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00100000000000000000001 /* BarebonesPDFApp.swift */; };
+		B00200000000000000000002 /* BarebonesCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00200000000000000000002 /* BarebonesCommands.swift */; };
+		B00300000000000000000003 /* BarebonesDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00300000000000000000003 /* BarebonesDocument.swift */; };
+		B00400000000000000000004 /* DocumentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00400000000000000000004 /* DocumentState.swift */; };
+		B00500000000000000000005 /* AnnotationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00500000000000000000005 /* AnnotationTool.swift */; };
+		B00600000000000000000006 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00600000000000000000006 /* AppPreferences.swift */; };
+		B00700000000000000000007 /* DocumentMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00700000000000000000007 /* DocumentMetadata.swift */; };
+		B00800000000000000000008 /* ViewerMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00800000000000000000008 /* ViewerMode.swift */; };
+		B00900000000000000000009 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00900000000000000000009 /* ExportService.swift */; };
+		B00A0000000000000000000A /* MetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00A0000000000000000000A /* MetadataService.swift */; };
+		B00B0000000000000000000B /* PageEditingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00B0000000000000000000B /* PageEditingEngine.swift */; };
+		B00C0000000000000000000C /* SafeSaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00C0000000000000000000C /* SafeSaveService.swift */; };
+		B00D0000000000000000000D /* AnnotationInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00D0000000000000000000D /* AnnotationInspector.swift */; };
+		B00E0000000000000000000E /* AnnotationToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00E0000000000000000000E /* AnnotationToolbar.swift */; };
+		B00F0000000000000000000F /* MainDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00F0000000000000000000F /* MainDocumentView.swift */; };
+		B01000000000000000000010 /* MetadataInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01000000000000000000010 /* MetadataInspector.swift */; };
+		B01100000000000000000011 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01100000000000000000011 /* PDFKitView.swift */; };
+		B01200000000000000000012 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01200000000000000000012 /* SearchBar.swift */; };
+		B01300000000000000000013 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01300000000000000000013 /* StatusBar.swift */; };
+		B01400000000000000000014 /* ThumbnailSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01400000000000000000014 /* ThumbnailSidebar.swift */; };
+		B01500000000000000000015 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01500000000000000000015 /* WelcomeView.swift */; };
+		B01600000000000000000016 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A01600000000000000000016 /* Assets.xcassets */; };
+		BE0100000000000000000001 /* PageEditingEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00100000000000000000001 /* PageEditingEngineTests.swift */; };
+		BE0200000000000000000002 /* DocumentStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00200000000000000000002 /* DocumentStateTests.swift */; };
+		BF0100000000000000000001 /* BarebonesPDFUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10100000000000000000001 /* BarebonesPDFUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C00100000000000000000001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB0100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA0100000000000000000001;
+			remoteInfo = BarebonesPDF;
+		};
+		C00200000000000000000002 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB0100000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA0100000000000000000001;
+			remoteInfo = BarebonesPDF;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A00100000000000000000001 /* BarebonesPDFApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/App/BarebonesPDFApp.swift; sourceTree = "<group>"; };
+		A00200000000000000000002 /* BarebonesCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/App/BarebonesCommands.swift; sourceTree = "<group>"; };
+		A00300000000000000000003 /* BarebonesDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Document/BarebonesDocument.swift; sourceTree = "<group>"; };
+		A00400000000000000000004 /* DocumentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Document/DocumentState.swift; sourceTree = "<group>"; };
+		A00500000000000000000005 /* AnnotationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Models/AnnotationTool.swift; sourceTree = "<group>"; };
+		A00600000000000000000006 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Models/AppPreferences.swift; sourceTree = "<group>"; };
+		A00700000000000000000007 /* DocumentMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Models/DocumentMetadata.swift; sourceTree = "<group>"; };
+		A00800000000000000000008 /* ViewerMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Models/ViewerMode.swift; sourceTree = "<group>"; };
+		A00900000000000000000009 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Services/ExportService.swift; sourceTree = "<group>"; };
+		A00A0000000000000000000A /* MetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Services/MetadataService.swift; sourceTree = "<group>"; };
+		A00B0000000000000000000B /* PageEditingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Services/PageEditingEngine.swift; sourceTree = "<group>"; };
+		A00C0000000000000000000C /* SafeSaveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Services/SafeSaveService.swift; sourceTree = "<group>"; };
+		A00D0000000000000000000D /* AnnotationInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/AnnotationInspector.swift; sourceTree = "<group>"; };
+		A00E0000000000000000000E /* AnnotationToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/AnnotationToolbar.swift; sourceTree = "<group>"; };
+		A00F0000000000000000000F /* MainDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/MainDocumentView.swift; sourceTree = "<group>"; };
+		A01000000000000000000010 /* MetadataInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/MetadataInspector.swift; sourceTree = "<group>"; };
+		A01100000000000000000011 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/PDFKitView.swift; sourceTree = "<group>"; };
+		A01200000000000000000012 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/SearchBar.swift; sourceTree = "<group>"; };
+		A01300000000000000000013 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/StatusBar.swift; sourceTree = "<group>"; };
+		A01400000000000000000014 /* ThumbnailSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/ThumbnailSidebar.swift; sourceTree = "<group>"; };
+		A01500000000000000000015 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDF/Views/WelcomeView.swift; sourceTree = "<group>"; };
+		A01600000000000000000016 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = BarebonesPDF/Assets.xcassets; sourceTree = "<group>"; };
+		A01700000000000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = BarebonesPDF/Info.plist; sourceTree = "<group>"; };
+		A01800000000000000000018 /* BarebonesPDF.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BarebonesPDF/BarebonesPDF.entitlements; sourceTree = "<group>"; };
+		E00100000000000000000001 /* PageEditingEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFTests/PageEditingEngineTests.swift; sourceTree = "<group>"; };
+		E00200000000000000000002 /* DocumentStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFTests/DocumentStateTests.swift; sourceTree = "<group>"; };
+		E10100000000000000000001 /* BarebonesPDFUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarebonesPDFUITests/BarebonesPDFUITests.swift; sourceTree = "<group>"; };
+		E20100000000000000000001 /* BarebonesPDF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarebonesPDF.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E20200000000000000000002 /* BarebonesPDFTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BarebonesPDFTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E20300000000000000000003 /* BarebonesPDFUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BarebonesPDFUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F00100000000000000000001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F00200000000000000000002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F00300000000000000000003 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC0100000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				CC0200000000000000000002 /* BarebonesPDF */,
+				CC0300000000000000000003 /* BarebonesPDFTests */,
+				CC0400000000000000000004 /* BarebonesPDFUITests */,
+				CC0500000000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC0200000000000000000002 /* BarebonesPDF */ = {
+			isa = PBXGroup;
+			children = (
+				A00100000000000000000001, A00200000000000000000002,
+				A00300000000000000000003, A00400000000000000000004,
+				A00500000000000000000005, A00600000000000000000006, A00700000000000000000007, A00800000000000000000008,
+				A00900000000000000000009, A00A0000000000000000000A, A00B0000000000000000000B, A00C0000000000000000000C,
+				A00D0000000000000000000D, A00E0000000000000000000E, A00F0000000000000000000F, A01000000000000000000010,
+				A01100000000000000000011, A01200000000000000000012, A01300000000000000000013, A01400000000000000000014, A01500000000000000000015,
+				A01600000000000000000016, A01700000000000000000017, A01800000000000000000018,
+			);
+			name = BarebonesPDF;
+			sourceTree = "<group>";
+		};
+		CC0300000000000000000003 /* BarebonesPDFTests */ = {isa = PBXGroup; children = (E00100000000000000000001, E00200000000000000000002,); name = BarebonesPDFTests; sourceTree = "<group>"; };
+		CC0400000000000000000004 /* BarebonesPDFUITests */ = {isa = PBXGroup; children = (E10100000000000000000001,); name = BarebonesPDFUITests; sourceTree = "<group>"; };
+		CC0500000000000000000005 /* Products */ = {isa = PBXGroup; children = (E20100000000000000000001, E20200000000000000000002, E20300000000000000000003,); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CA0100000000000000000001 /* BarebonesPDF */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD0100000000000000000001;
+			buildPhases = (F10100000000000000000001, F00100000000000000000001, F20100000000000000000001,);
+			buildRules = ();
+			dependencies = ();
+			name = BarebonesPDF;
+			productName = BarebonesPDF;
+			productReference = E20100000000000000000001;
+			productType = "com.apple.product-type.application";
+		};
+		CA0200000000000000000002 /* BarebonesPDFTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD0200000000000000000002;
+			buildPhases = (F10200000000000000000002, F00200000000000000000002, F20200000000000000000002,);
+			buildRules = ();
+			dependencies = (D00100000000000000000001,);
+			name = BarebonesPDFTests;
+			productName = BarebonesPDFTests;
+			productReference = E20200000000000000000002;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CA0300000000000000000003 /* BarebonesPDFUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD0300000000000000000003;
+			buildPhases = (F10300000000000000000003, F00300000000000000000003, F20300000000000000000003,);
+			buildRules = ();
+			dependencies = (D00200000000000000000002,);
+			name = BarebonesPDFUITests;
+			productName = BarebonesPDFUITests;
+			productReference = E20300000000000000000003;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB0100000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					CA0100000000000000000001 = {CreatedOnToolsVersion = 15.0; };
+					CA0200000000000000000002 = {CreatedOnToolsVersion = 15.0; TestTargetID = CA0100000000000000000001; };
+					CA0300000000000000000003 = {CreatedOnToolsVersion = 15.0; TestTargetID = CA0100000000000000000001; };
+				};
+			};
+			buildConfigurationList = CD0000000000000000000000;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base,);
+			mainGroup = CC0100000000000000000001;
+			productRefGroup = CC0500000000000000000005;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (CA0100000000000000000001, CA0200000000000000000002, CA0300000000000000000003,);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F20100000000000000000001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (B01600000000000000000016,); runOnlyForDeploymentPostprocessing = 0; };
+		F20200000000000000000002 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F20300000000000000000003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F10100000000000000000001 = {
+			isa = PBXSourcesBuildPhase; buildActionMask = 2147483647;
+			files = (B00100000000000000000001, B00200000000000000000002, B00300000000000000000003, B00400000000000000000004, B00500000000000000000005, B00600000000000000000006, B00700000000000000000007, B00800000000000000000008, B00900000000000000000009, B00A0000000000000000000A, B00B0000000000000000000B, B00C0000000000000000000C, B00D0000000000000000000D, B00E0000000000000000000E, B00F0000000000000000000F, B01000000000000000000010, B01100000000000000000011, B01200000000000000000012, B01300000000000000000013, B01400000000000000000014, B01500000000000000000015,);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F10200000000000000000002 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (BE0100000000000000000001, BE0200000000000000000002,); runOnlyForDeploymentPostprocessing = 0; };
+		F10300000000000000000003 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (BF0100000000000000000001,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D00100000000000000000001 = {isa = PBXTargetDependency; target = CA0100000000000000000001; targetProxy = C00100000000000000000001; };
+		D00200000000000000000002 = {isa = PBXTargetDependency; target = CA0100000000000000000001; targetProxy = C00200000000000000000002; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BC0000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; name = Debug; };
+		BC0000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; GCC_C_LANGUAGE_STANDARD = gnu17; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_OPTIMIZATION_LEVEL = "-O";}; name = Release; };
+		BC0100000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = BarebonesPDF/BarebonesPDF.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = BarebonesPDF/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MARKETING_VERSION = 1.0.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDF; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_STRICT_CONCURRENCY = minimal; SWIFT_VERSION = 5.0;}; name = Debug; };
+		BC0100000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = BarebonesPDF/BarebonesPDF.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = BarebonesPDF/Info.plist; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MARKETING_VERSION = 1.0.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDF; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_STRICT_CONCURRENCY = minimal; SWIFT_VERSION = 5.0;}; name = Release; };
+		BC0200000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDFTests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BarebonesPDF.app/Contents/MacOS/BarebonesPDF";}; name = Debug; };
+		BC0200000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDFTests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BarebonesPDF.app/Contents/MacOS/BarebonesPDF";}; name = Release; };
+		BC0300000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDFUITests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TEST_TARGET_NAME = BarebonesPDF;}; name = Debug; };
+		BC0300000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; PRODUCT_BUNDLE_IDENTIFIER = com.greenshoegarage.BarebonesPDFUITests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TEST_TARGET_NAME = BarebonesPDF;}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CD0000000000000000000000 = {isa = XCConfigurationList; buildConfigurations = (BC0000000000000000000001, BC0000000000000000000002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		CD0100000000000000000001 = {isa = XCConfigurationList; buildConfigurations = (BC0100000000000000000001, BC0100000000000000000002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		CD0200000000000000000002 = {isa = XCConfigurationList; buildConfigurations = (BC0200000000000000000001, BC0200000000000000000002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		CD0300000000000000000003 = {isa = XCConfigurationList; buildConfigurations = (BC0300000000000000000001, BC0300000000000000000002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = CB0100000000000000000001 /* Project object */;
+}
