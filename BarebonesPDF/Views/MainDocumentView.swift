@@ -64,10 +64,6 @@ struct MainDocumentView: View {
         .onChange(of: state.currentPageIndex) { newValue in
             pageEntry = "\(newValue + 1)"
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSDocument.didSaveNotification)) { notification in
-            guard let savedDocument = notification.object as? NSDocument else { return }
-            if state.fileURL == nil || savedDocument.fileURL == state.fileURL { state.markSaved() }
-        }
         .sheet(isPresented: $state.metadataVisible) {
             MetadataInspector(state: state)
         }

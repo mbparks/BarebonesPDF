@@ -3,7 +3,7 @@ import PDFKit
 
 enum MetadataService {
     static func apply(_ metadata: EditableMetadata, to document: PDFDocument) {
-        var attributes = document.documentAttributes ?? [:]
+        var attributes: [AnyHashable: Any] = document.documentAttributes ?? [:]
         set(metadata.title, key: .titleAttribute, in: &attributes)
         set(metadata.author, key: .authorAttribute, in: &attributes)
         set(metadata.subject, key: .subjectAttribute, in: &attributes)
@@ -23,7 +23,7 @@ enum MetadataService {
     private static func set(
         _ value: String,
         key: PDFDocumentAttribute,
-        in attributes: inout [PDFDocumentAttribute: Any]
+        in attributes: inout [AnyHashable: Any]
     ) {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {

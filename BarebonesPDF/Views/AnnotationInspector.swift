@@ -136,7 +136,11 @@ struct AnnotationInspector: View {
 
     private func synchronizeFields() {
         contents = state.selectedAnnotation?.contents ?? ""
-        fontSize = state.selectedAnnotation?.font?.pointSize ?? state.annotationFont.pointSize
+        if let selectedFontSize = state.selectedAnnotation?.font?.pointSize {
+            fontSize = Double(selectedFontSize)
+        } else {
+            fontSize = Double(state.annotationFont.pointSize)
+        }
     }
 
     private func applyFont() {
