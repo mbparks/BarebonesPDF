@@ -3,15 +3,17 @@ import SwiftUI
 
 struct TextContentEditor: View {
     let draft: PDFTextEditDraft
-    let prepare: (String) -> PDFTextEditPreview?
+    let prepare: (String) -> TextEditPreparationOutcome
     let apply: (PDFTextEditPreview) -> Void
     let cancel: () -> Void
     @State private var replacement: String
     @State private var preview: PDFTextEditPreview?
+    @State private var isValidating = false
+    @State private var validationError: String?
 
     init(
         draft: PDFTextEditDraft,
-        prepare: @escaping (String) -> PDFTextEditPreview?,
+        prepare: @escaping (String) -> TextEditPreparationOutcome,
         apply: @escaping (PDFTextEditPreview) -> Void,
         cancel: @escaping () -> Void
     ) {
@@ -33,6 +35,7 @@ struct TextContentEditor: View {
         .padding(20)
         .frame(width: preview == nil ? 540 : 820)
         .frame(minHeight: preview == nil ? 320 : 650)
+        .onChange(of: replacement) { _ in validationError = nil }
     }
 
     private var editorView: some View {
@@ -47,15 +50,37 @@ struct TextContentEditor: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if isValidating {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text("Validating the generated PDF and rendering previews…")
+                }
+                .font(.callout)
+                .accessibilityElement(children: .combine)
+            }
+            if let validationError {
+                Label {
+                    Text(validationError)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                }
+                .font(.callout)
+                .foregroundStyle(.red)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 7))
+                .accessibilityLabel("Text edit blocked: \(validationError)")
+            }
             HStack {
                 Spacer()
                 Button("Cancel", action: cancel)
                     .keyboardShortcut(.cancelAction)
                 Button("Validate & Preview") {
-                    preview = prepare(replacement)
+                    beginValidation()
                 }
                 .keyboardShortcut(.defaultAction)
-                .disabled(replacement.isEmpty || replacement == draft.originalText)
+                .disabled(isValidating || replacement.isEmpty || replacement == draft.originalText)
             }
         }
     }
@@ -116,5 +141,20 @@ struct TextContentEditor: View {
     private func uniqueFontNames(_ names: [String]) -> String {
         let cleaned = names.filter { !$0.isEmpty }
         return Array(Set(cleaned)).sorted().joined(separator: ", ")
+    }
+
+    private func beginValidation() {
+        validationError = nil
+        isValidating = true
+        Task { @MainActor in
+            await Task<Void, Never>.yield()
+            switch prepare(replacement) {
+            case .success(let generatedPreview):
+                preview = generatedPreview
+            case .failure(let message):
+                validationError = message
+            }
+            isValidating = false
+        }
     }
 }

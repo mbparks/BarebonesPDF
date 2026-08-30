@@ -10,6 +10,11 @@ struct PDFTextEditPreview {
     let validationSummary: [String]
 }
 
+enum TextEditPreparationOutcome {
+    case success(PDFTextEditPreview)
+    case failure(String)
+}
+
 enum TextEditValidationService {
     static func preparePreview(
         before sourceData: Data,

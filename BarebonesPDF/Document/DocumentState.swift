@@ -431,8 +431,10 @@ final class DocumentState: NSObject, ObservableObject {
         }
     }
 
-    func prepareTextEdit(_ replacement: String) -> PDFTextEditPreview? {
-        guard let draft = textEditDraft, let before = snapshot() else { return nil }
+    func prepareTextEdit(_ replacement: String) -> TextEditPreparationOutcome {
+        guard let draft = textEditDraft, let before = snapshot() else {
+            return .failure("The current PDF could not be captured for validation.")
+        }
         isBusy = true
         busyMessage = "Validating text edit…"
         defer {
@@ -441,15 +443,15 @@ final class DocumentState: NSObject, ObservableObject {
         }
         do {
             let result = try PDFiumTextEditingService.replaceText(in: before, draft: draft, with: replacement)
-            return try TextEditValidationService.preparePreview(
+            let preview = try TextEditValidationService.preparePreview(
                 before: before,
                 result: result,
                 draft: draft,
                 replacement: replacement
             )
+            return .success(preview)
         } catch {
-            present(title: "Text Edit Was Blocked", message: error.localizedDescription)
-            return nil
+            return .failure(error.localizedDescription)
         }
     }
 
